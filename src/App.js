@@ -6,6 +6,7 @@ import Map from './components/Map/Map';
 
 import { getPlacesData } from './api/index';
 import { useEffect, useState } from 'react';
+import { getWeatherData } from './api/index';
 
 function App() {
 	const [places, setPlaces] = useState([]);
@@ -13,7 +14,7 @@ function App() {
 	const [coordinates, setCoordinates] = useState({});
 	const [bounds, setBounds] = useState({});
 	const [chlidClicked, setChildClicked] = useState(null);
-
+	const [weatherData, setWeatherData] = useState([]);
 	const [type, setType] = useState('restaurants');
 	const [rating, setRating] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
@@ -34,6 +35,9 @@ function App() {
 	useEffect(() => {
 		if (bounds.sw && bounds.ne) {
 			setIsLoading(true);
+			getWeatherData(coordinates.lat, coordinates.lng).then((data) =>
+				setWeatherData(data)
+			);
 			getPlacesData(type, bounds.ne, bounds.sw).then((data) => {
 				setPlaces(data?.filter((place) => place.name && place.num_reviews > 0));
 				setFilteredPlaces([]);
@@ -41,8 +45,7 @@ function App() {
 			});
 		}
 	}, [type, bounds]);
-	console.log(places);
-	console.log(filteredPlaces);
+
 	return (
 		<>
 			<CssBaseline />
@@ -66,6 +69,7 @@ function App() {
 						coordinates={coordinates}
 						places={filteredPlaces.length ? filteredPlaces : places}
 						setChildClicked={setChildClicked}
+						weatherData={weatherData}
 					/>
 				</Grid>
 			</Grid>
